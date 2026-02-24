@@ -1,0 +1,1104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" href="SnapBG.ai_1771936136826.png">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Apply — Project Intake Form</title>
+    <!-- نفس الخطوط المستخدمة في index.html -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Cormorant:ital,wght@0,300;0,400;1,300;1,400&family=DM+Mono:ital,wght@0,300;0,400;1,300&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/lenis@1.1.13/dist/lenis.min.js"></script>
+    <style>
+        /* ===== TOKENS (مطابقة لـ index.html) ===== */
+        :root {
+            --bg: #060608;
+            --surface: #0c0c10;
+            --surface2: #111116;
+            --accent: #c8ff00;
+            --accent-dim: rgba(200, 255, 0, 0.1);
+            --accent-glow: rgba(200, 255, 0, 0.06);
+            --text: #f0ede6;
+            --muted: #4a4a55;
+            --muted2: #2a2a32;
+            --border: #18181f;
+            --font-hero: 'Bebas Neue', sans-serif;
+            --font-body: 'Outfit', sans-serif;
+            --font-serif: 'Cormorant', serif;
+            --font-mono: 'DM Mono', monospace;
+            --ease-out: cubic-bezier(.25, .46, .45, .94);
+            --ease-bounce: cubic-bezier(.175, .885, .32, 1.275);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: auto;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: var(--font-body);
+            overflow-x: hidden;
+            cursor: none; /* إخفاء المؤشر الافتراضي */
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* ===== NOISE OVERLAY (نفس المؤثر) ===== */
+        body::after {
+            content: '';
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 9100;
+            opacity: .042;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+            background-size: 160px;
+        }
+
+        /* ===== CURSOR SYSTEM (من index.html) ===== */
+        #cursor {
+            position: fixed;
+            top: 0; left: 0;
+            pointer-events: none;
+            z-index: 9999;
+            transform: translate(-50%, -50%);
+            mix-blend-mode: normal;
+        }
+        .c-blob {
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            width: 44px; height: 44px;
+            border: 1.5px solid rgba(200, 255, 0, .45);
+            border-radius: 50%;
+            transition: width .45s var(--ease-out),
+                        height .45s var(--ease-out),
+                        border-radius .45s var(--ease-out),
+                        border-color .45s,
+                        background .45s;
+            will-change: transform, width, height;
+        }
+        .c-dot {
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            width: 7px; height: 7px;
+            background: var(--accent);
+            border-radius: 50%;
+            transition: width .3s, height .3s, border-radius .3s, background .3s, opacity .3s;
+        }
+        .c-label {
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            font-family: var(--font-mono);
+            font-size: 9px;
+            letter-spacing: .12em;
+            text-transform: uppercase;
+            color: var(--bg);
+            white-space: nowrap;
+            opacity: 0;
+            transition: opacity .3s;
+            user-select: none;
+            pointer-events: none;
+        }
+
+        /* حالات المؤشر المخصصة لهذه الصفحة */
+        body.cursor-form .c-blob { width: 70px; height: 70px; background: var(--accent); border-color: var(--accent); }
+        body.cursor-form .c-dot { opacity: 0; }
+        body.cursor-form .c-label { opacity: 1; color: var(--bg); font-size: 9px; content: "FILL"; }
+
+        body.cursor-radio .c-blob { width: 60px; height: 60px; border-radius: 40%; background: rgba(200,255,0,0.15); border-color: var(--accent); }
+        body.cursor-radio .c-dot { opacity: 0; }
+        body.cursor-radio .c-label { opacity: 1; color: var(--accent); font-size: 8px; }
+
+        body.cursor-click .c-blob { width: 80px; height: 80px; background: var(--accent); border-color: var(--accent); }
+        body.cursor-click .c-dot { opacity: 0; }
+        body.cursor-click .c-label { opacity: 1; color: var(--bg); font-size: 9px; }
+
+        body.cursor-rate .c-blob { width: 100px; height: 100px; border-radius: 40%; background: transparent; border-color: var(--accent); border-width: 2px; }
+        body.cursor-rate .c-dot { width: 4px; height: 4px; background: var(--accent); }
+        body.cursor-rate .c-label { opacity: 1; color: var(--accent); font-size: 9px; }
+
+        body.cursor-send .c-blob { width: 110px; height: 40px; border-radius: 40px; background: var(--accent); border-color: var(--accent); }
+        body.cursor-send .c-dot { opacity: 0; }
+        body.cursor-send .c-label { opacity: 1; color: var(--bg); font-size: 9px; }
+
+        /* ===== LOADER (من index.html) ===== */
+        #loader {
+            position: fixed;
+            inset: 0;
+            background: var(--bg);
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            gap: 18px;
+            overflow: hidden;
+        }
+        .ld-line {
+            font-family: var(--font-hero);
+            font-size: clamp(52px, 10vw, 140px);
+            letter-spacing: .02em;
+            line-height: 1;
+            overflow: hidden;
+        }
+        .ld-line span { display: block; transform: translateY(110%); }
+        .ld-line em { color: var(--accent); }
+        .ld-pct { font-family: var(--font-mono); font-size: 11px; color: var(--muted); letter-spacing: .14em; }
+        .ld-bar { width: 200px; height: 1px; background: var(--muted2); overflow: hidden; }
+        .ld-fill { height: 100%; background: var(--accent); width: 0%; }
+
+        /* ===== PROGRESS BAR (من index.html) ===== */
+        #pbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 2px;
+            background: var(--accent);
+            z-index: 800;
+            width: 0%;
+        }
+
+        /* ===== HEADER / NAV (مبسط) ===== */
+        .apply-header {
+            padding: 80px 60px 40px;
+            position: relative;
+            z-index: 5;
+        }
+        .back-home {
+            position: fixed;
+            top: 26px;
+            right: 60px;
+            z-index: 500;
+            font-family: var(--font-mono);
+            font-size: 11px;
+            color: var(--muted);
+            text-decoration: none;
+            letter-spacing: .1em;
+            text-transform: uppercase;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(12,12,16,0.8);
+            backdrop-filter: blur(8px);
+            padding: 10px 18px;
+            border: 1px solid var(--border);
+            border-radius: 40px;
+            transition: border-color 0.3s, color 0.3s;
+        }
+        .back-home:hover {
+            color: var(--accent);
+            border-color: var(--accent);
+        }
+        .back-home svg {
+            width: 16px;
+            height: 16px;
+            fill: currentColor;
+        }
+
+        /* ===== HERO TITLE مع Split و Tilt ===== */
+        .apply-title-wrap {
+            margin-bottom: 40px;
+            position: relative;
+            z-index: 5;
+        }
+        .apply-title {
+            font-family: var(--font-hero);
+            font-size: clamp(80px, 15vw, 200px);
+            line-height: 0.85;
+            letter-spacing: -0.01em;
+            color: var(--text);
+            text-transform: uppercase;
+        }
+        .apply-title .line {
+            display: block;
+            overflow: hidden;
+        }
+        .apply-title .word {
+            display: inline-block;
+            transform: translateY(110%);
+        }
+        .apply-title em {
+            font-family: var(--font-serif);
+            font-style: italic;
+            color: var(--accent);
+        }
+        .title-tag {
+            font-family: var(--font-mono);
+            font-size: 12px;
+            color: var(--muted);
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 20px;
+            opacity: 0;
+        }
+        .title-tag .dot {
+            width: 8px;
+            height: 8px;
+            background: var(--accent);
+            border-radius: 50%;
+            animation: blink 2s infinite;
+        }
+        @keyframes blink { 0%,100%{opacity:1;} 50%{opacity:0.2;} }
+
+        /* ===== MAIN CONTAINER ===== */
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 0 60px 120px;
+            position: relative;
+            z-index: 5;
+        }
+
+        /* ===== BACKGROUND BLOBS ===== */
+        .form-blob {
+            position: fixed;
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, rgba(200,255,0,0.08) 0%, transparent 70%);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 0;
+            filter: blur(70px);
+            will-change: transform;
+        }
+        .blob1 { top: -100px; left: -200px; }
+        .blob2 { bottom: -100px; right: -200px; background: radial-gradient(circle, rgba(0,255,136,0.06) 0%, transparent 70%); }
+
+        /* ===== FORM CARD ===== */
+        .form-card {
+            background: rgba(12, 12, 16, 0.7);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border);
+            border-radius: 40px;
+            padding: 60px;
+            box-shadow: 0 30px 60px -30px rgba(0,0,0,0.8);
+            position: relative;
+            z-index: 10;
+        }
+
+        .form-description {
+            font-size: 16px;
+            line-height: 1.7;
+            color: var(--muted);
+            margin-bottom: 50px;
+            max-width: 600px;
+        }
+
+        /* ===== FORM ELEMENTS (مطورة) ===== */
+        .form-group {
+            margin-bottom: 40px;
+        }
+
+        .form-label {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-family: var(--font-mono);
+            font-size: 12px;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--accent);
+            margin-bottom: 16px;
+        }
+        .form-label .required {
+            color: var(--muted);
+            font-size: 10px;
+        }
+        .form-label::before {
+            content: '✦';
+            color: var(--accent);
+            font-size: 14px;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 16px 22px;
+            background: rgba(255,255,255,0.02);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            color: var(--text);
+            font-family: var(--font-body);
+            font-size: 16px;
+            transition: all 0.3s var(--ease-out);
+            outline: none;
+        }
+        .form-input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 25px rgba(200,255,0,0.15);
+            background: rgba(200,255,0,0.02);
+        }
+        .form-input::placeholder {
+            color: var(--muted2);
+            font-weight: 300;
+        }
+        textarea.form-input {
+            min-height: 140px;
+            resize: vertical;
+        }
+
+        /* راديو متطور */
+        .radio-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-top: 10px;
+        }
+        .radio-item {
+            position: relative;
+        }
+        .radio-input {
+            position: absolute;
+            opacity: 0;
+            pointer-events: none;
+        }
+        .radio-label {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 20px;
+            background: rgba(255,255,255,0.02);
+            border: 1px solid var(--border);
+            border-radius: 30px;
+            font-size: 15px;
+            font-weight: 500;
+            color: var(--text);
+            cursor: pointer;
+            transition: all 0.3s var(--ease-out);
+            position: relative;
+            overflow: hidden;
+        }
+        .radio-label::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: var(--accent-dim);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .radio-input:checked + .radio-label {
+            border-color: var(--accent);
+            background: rgba(200,255,0,0.05);
+            color: var(--accent);
+        }
+        .radio-input:checked + .radio-label::before {
+            opacity: 1;
+        }
+        .radio-custom {
+            width: 18px;
+            height: 18px;
+            border: 2px solid var(--muted);
+            border-radius: 50%;
+            position: relative;
+            z-index: 1;
+            transition: all 0.2s;
+        }
+        .radio-input:checked + .radio-label .radio-custom {
+            border-color: var(--accent);
+            background: var(--accent);
+            box-shadow: 0 0 15px var(--accent);
+        }
+
+        /* وصف الميزانية */
+        .budget-description {
+            margin-top: 20px;
+            padding: 18px 24px;
+            background: rgba(200,255,0,0.02);
+            border-left: 3px solid var(--accent);
+            border-radius: 12px;
+            font-size: 14px;
+            color: var(--text);
+            line-height: 1.7;
+            display: none;
+        }
+        .budget-description.show {
+            display: block;
+            animation: slideDesc 0.4s var(--ease-out);
+        }
+        @keyframes slideDesc { 0%{opacity:0;transform:translateY(-10px);} 100%{opacity:1;transform:translateY(0);} }
+
+        /* تحذير عاجل */
+        .urgent-warning {
+            margin-top: 20px;
+            padding: 16px 24px;
+            background: rgba(200,255,0,0.03);
+            border: 1px solid rgba(200,255,0,0.3);
+            border-radius: 30px;
+            font-size: 14px;
+            color: var(--accent);
+            font-family: var(--font-mono);
+            letter-spacing: 0.05em;
+            display: none;
+        }
+        .urgent-warning.show {
+            display: block;
+            animation: slideDesc 0.4s;
+        }
+
+        /* ===== STAR RATING (مطابق للأسلوب الجديد) ===== */
+        .rating-section {
+            margin: 50px 0 30px;
+        }
+        .rating-label {
+            font-family: var(--font-mono);
+            font-size: 11px;
+            letter-spacing: 0.1em;
+            color: var(--muted);
+            margin-bottom: 12px;
+        }
+        .star-rating {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 30px;
+        }
+        .star {
+            font-size: 32px;
+            color: var(--muted2);
+            cursor: pointer;
+            transition: all 0.2s var(--ease-out);
+        }
+        .star:hover,
+        .star.active {
+            color: var(--accent);
+            text-shadow: 0 0 20px var(--accent);
+            transform: scale(1.2);
+        }
+
+        /* ===== SUBMIT BUTTON ===== */
+        .submit-container {
+            margin-top: 60px;
+            text-align: center;
+        }
+        .submit-btn {
+            background: transparent;
+            border: 2px solid var(--accent);
+            color: var(--accent);
+            font-family: var(--font-hero);
+            font-size: 32px;
+            letter-spacing: 0.02em;
+            padding: 22px 70px;
+            border-radius: 80px;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.4s var(--ease-out);
+            text-transform: uppercase;
+            box-shadow: 0 10px 30px -15px rgba(200,255,0,0.3);
+        }
+        .submit-btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: var(--accent);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+            z-index: -1;
+        }
+        .submit-btn:hover {
+            color: var(--bg);
+        }
+        .submit-btn:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+        .submit-btn:disabled {
+            opacity: 0.3;
+            pointer-events: none;
+        }
+
+        /* ===== SUCCESS MESSAGE ===== */
+        .success-message {
+            text-align: center;
+            margin-top: 40px;
+            padding: 30px;
+            background: rgba(200,255,0,0.02);
+            border-radius: 40px;
+            border: 1px solid rgba(200,255,0,0.2);
+            display: none;
+        }
+        .success-message.show {
+            display: block;
+            animation: slideDesc 0.5s;
+        }
+        .success-message h3 {
+            font-family: var(--font-hero);
+            font-size: 40px;
+            color: var(--accent);
+            margin-bottom: 10px;
+        }
+        .success-message p {
+            color: var(--muted);
+            font-size: 16px;
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 768px) {
+            .apply-header { padding: 60px 20px 20px; }
+            .back-home { top: 16px; right: 20px; }
+            .container { padding: 0 20px 80px; }
+            .form-card { padding: 30px 25px; }
+            .radio-grid { grid-template-columns: 1fr; }
+            .submit-btn { font-size: 28px; padding: 18px 40px; width: 100%; }
+            #cursor { display: none; } body { cursor: auto; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- المؤشر المخصص -->
+    <div id="cursor">
+        <div class="c-blob"></div>
+        <div class="c-dot"></div>
+        <div class="c-label" id="curLabel">✦</div>
+    </div>
+
+    <!-- شريط التقدم -->
+    <div id="pbar"></div>
+
+    <!-- شاشة التحميل -->
+    <div id="loader">
+        <div class="ld-line"><span>Apply</span></div>
+        <div class="ld-line"><span><em>Now.</em></span></div>
+        <div class="ld-bar"><div class="ld-fill" id="lf"></div></div>
+        <div class="ld-pct" id="lp">0%</div>
+    </div>
+
+    <!-- عناصر خلفية متحركة -->
+    <div class="form-blob blob1"></div>
+    <div class="form-blob blob2"></div>
+
+    <!-- زر العودة للصفحة الرئيسية -->
+    <a href="index.html" class="back-home">
+        <svg viewBox="0 0 24 24"><path d="M3 12l9-9 9 9h-3v9h-12v-9h-3z"/></svg>
+        Back to Portfolio
+    </a>
+
+    <!-- رأس الصفحة بتأثير Tilt -->
+<!-- رأس الصفحة بتأثير Tilt -->
+<header class="apply-header">
+    <div class="apply-title-wrap tilt-wrap" id="titleTilt">
+        <h1 class="apply-title tilt-inner">
+            <span class="line"><span class="word">Apply</span></span>
+            <span class="line"><span class="word"><em>for</em></span></span>
+            <span class="line"><span class="word">Services</span></span>
+        </h1>
+        <div class="title-tag" id="titleTag">
+            <span class="dot"></span> START YOUR PROJECT — FILL THE FORM BELOW
+        </div>
+    </div>
+</header>
+
+    <main class="container">
+        <div class="form-card" id="formCard">
+
+            <!-- وصف مختصر -->
+            <p class="form-description">
+                Tell us about your vision. Every detail matters — we’ll craft something extraordinary together.
+            </p>
+
+            <!-- بداية النموذج مع مناطق مخصصة للمؤشر -->
+            <form method="POST" action="https://formsubmit.co/mina.samuel.zaki@gmail.com">
+                <input type="hidden" name="_next" value="https://mina-samuel-2010.github.io/Church-of-Saints-Peter-Paul/index.html">
+                <input type="hidden" name="_captcha" value="false">
+
+
+            
+                <!-- الاسم الكامل -->
+                <div class="form-group" data-cursor="form">
+                    <label class="form-label" for="fullName">Full Name <span class="required">(required)</span></label>
+                    <input type="text" id="fullName" name="fullName" class="form-input" placeholder="e.g., John Doe" required>
+                </div>
+
+                <!-- اسم الشركة -->
+                <div class="form-group" data-cursor="form">
+                    <label class="form-label" for="companyName">Company / Organization</label>
+                    <input type="text" id="companyName" name="companyName" class="form-input" placeholder="Optional — if applicable">
+                </div>
+
+                <!-- البريد الإلكتروني -->
+                <div class="form-group" data-cursor="form">
+                    <label class="form-label" for="email">Email Address <span class="required">(required)</span></label>
+                    <input type="email" id="email" name="email" class="form-input" placeholder="hello@domain.com" required>
+                </div>
+
+                <!-- رقم الهاتف -->
+                <div class="form-group" data-cursor="form">
+                    <label class="form-label" for="phone">Phone Number <span class="required">(required)</span></label>
+                    <input type="tel" id="phone" name="phone" class="form-input" placeholder="+20 100 000 0000" required>
+                </div>
+
+                <!-- نوع المشروع (مجموعة راديو) -->
+                <div class="form-group" data-cursor="radio">
+                    <label class="form-label">Project Type <span class="required">(required)</span></label>
+                    <div class="radio-grid" id="projectTypeGroup">
+                        <!-- يتم توليدها يدوياً لتتناسب مع الأسلوب -->
+                        <div class="radio-item">
+                            <input type="radio" id="personal" name="projectType" value="Personal Website" class="radio-input" required>
+                            <label for="personal" class="radio-label"><span class="radio-custom"></span> Personal Website</label>
+                        </div>
+                        <div class="radio-item">
+                            <input type="radio" id="company" name="projectType" value="Company Website" class="radio-input">
+                            <label for="company" class="radio-label"><span class="radio-custom"></span> Company Website</label>
+                        </div>
+                        <div class="radio-item">
+                            <input type="radio" id="brand" name="projectType" value="Brand Website" class="radio-input">
+                            <label for="brand" class="radio-label"><span class="radio-custom"></span> Brand Website</label>
+                        </div>
+                        <div class="radio-item">
+                            <input type="radio" id="ecommerce" name="projectType" value="E-commerce" class="radio-input">
+                            <label for="ecommerce" class="radio-label"><span class="radio-custom"></span> E-commerce Store</label>
+                        </div>
+                        <div class="radio-item">
+                            <input type="radio" id="portfolio" name="projectType" value="Portfolio" class="radio-input">
+                            <label for="portfolio" class="radio-label"><span class="radio-custom"></span> Portfolio</label>
+                        </div>
+                        <div class="radio-item">
+                            <input type="radio" id="otherType" name="projectType" value="Other" class="radio-input">
+                            <label for="otherType" class="radio-label"><span class="radio-custom"></span> Other</label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- وصف المشروع -->
+                <div class="form-group" data-cursor="form">
+                    <label class="form-label" for="projectDescription">Project Description <span class="required">(required)</span></label>
+                    <textarea id="projectDescription" name="projectDescription" class="form-input" placeholder="Describe your goals, features, inspiration..." required></textarea>
+                </div>
+
+                <!-- الميزانية (سيتم تحديثها ديناميكياً) -->
+                <div class="form-group" data-cursor="radio">
+                    <label class="form-label">Budget Range <span class="required">(required)</span></label>
+                    <div class="radio-grid" id="budgetOptions"></div>
+                    <div id="budgetDescription" class="budget-description"></div>
+                </div>
+
+                <!-- الجدول الزمني -->
+                <div class="form-group" data-cursor="radio">
+                    <label class="form-label">Timeline <span class="required">(required)</span></label>
+                    <div class="radio-grid">
+                        <div class="radio-item">
+                            <input type="radio" id="urgent" name="timeline" value="ASAP (Rush)" class="radio-input" required>
+                            <label for="urgent" class="radio-label"><span class="radio-custom"></span> ASAP (Rush Job)</label>
+                        </div>
+                        <div class="radio-item">
+                            <input type="radio" id="flexible" name="timeline" value="Flexible" class="radio-input">
+                            <label for="flexible" class="radio-label"><span class="radio-custom"></span> Flexible Timeline</label>
+                        </div>
+                    </div>
+                    <div id="urgentWarning" class="urgent-warning">⚡ An additional rush fee will be applied ( +1499 ).</div>
+                </div>
+
+                <!-- تقييم الأولويات (نجوم) -->
+                <div class="rating-section">
+                    <h3 style="font-family: var(--font-hero); font-size: 32px; margin-bottom: 30px;">Rate your priorities <em style="color:var(--accent);">✦</em></h3>
+                    
+                    <div data-cursor="rate">
+                        <div class="rating-label">DESIGN QUALITY</div>
+                        <div class="star-rating" data-rating="design">
+                            <span class="star" data-value="1">★</span><span class="star" data-value="2">★</span><span class="star" data-value="3">★</span><span class="star" data-value="4">★</span><span class="star" data-value="5">★</span>
+                        </div>
+                        <input type="hidden" name="designRating" id="designRating">
+                    </div>
+
+                    <div data-cursor="rate">
+                        <div class="rating-label">FUNCTIONALITY / PERFORMANCE</div>
+                        <div class="star-rating" data-rating="functionality">
+                            <span class="star" data-value="1">★</span><span class="star" data-value="2">★</span><span class="star" data-value="3">★</span><span class="star" data-value="4">★</span><span class="star" data-value="5">★</span>
+                        </div>
+                        <input type="hidden" name="functionalityRating" id="functionalityRating">
+                    </div>
+
+                    <div data-cursor="rate">
+                        <div class="rating-label">SEO / VISIBILITY</div>
+                        <div class="star-rating" data-rating="seo">
+                            <span class="star" data-value="1">★</span><span class="star" data-value="2">★</span><span class="star" data-value="3">★</span><span class="star" data-value="4">★</span><span class="star" data-value="5">★</span>
+                        </div>
+                        <input type="hidden" name="seoRating" id="seoRating">
+                    </div>
+
+                    <div data-cursor="rate">
+                        <div class="rating-label">MOBILE EXPERIENCE</div>
+                        <div class="star-rating" data-rating="mobile">
+                            <span class="star" data-value="1">★</span><span class="star" data-value="2">★</span><span class="star" data-value="3">★</span><span class="star" data-value="4">★</span><span class="star" data-value="5">★</span>
+                        </div>
+                        <input type="hidden" name="mobileRating" id="mobileRating">
+                    </div>
+                </div>
+
+                <!-- تعليقات إضافية -->
+                <div class="form-group" data-cursor="form">
+                    <label class="form-label" for="comments">Additional Comments / Special Requests</label>
+                    <textarea id="comments" name="comments" class="form-input" placeholder="Anything else you'd like us to know..."></textarea>
+                </div>
+
+                <!-- زر الإرسال -->
+                <div class="submit-container" data-cursor="send">
+                    <button type="submit" class="submit-btn" id="submitBtn">Submit Application</button>
+                </div>
+
+                <!-- رسالة النجاح -->
+                <div class="success-message" id="successMessage">
+                    <h3>✦ Received ✦</h3>
+                    <p>Your application is on its way. We'll be in touch within 24 hours.</p>
+                </div>
+            </form>
+        </div>
+    </main>
+
+    <script>
+        // Basin endpoint (نفس القيمة)
+        const BASIN_FORM_ENDPOINT = null; // مش هنستخدمه دلوقتي
+        const THANK_YOU_PAGE = 'thank-you.html';
+
+        // بيانات الميزانية (نفس الهيكل ولكن بالانجليزي)
+        const budgetOptions = {
+            'Personal Website': [
+                { value: 'custom', label: 'Custom Budget', description: 'Let’s talk about your unique idea — budget will be crafted accordingly.' }
+            ],
+            'Company Website': [ { value: 'custom', label: 'Custom Budget', description: 'We’ll tailor a quote based on your company’s specific needs.' } ],
+            'Brand Website': [
+                { value: 'custom', label: 'Custom Budget', description: 'Let’s talk about your unique idea — budget will be crafted accordingly.' }
+            ],
+            'E-commerce': [ { value: 'custom', label: 'Custom Budget', description: 'E‑commerce stores require detailed scoping — we’ll discuss your product range and features.' } ],
+            'Portfolio': [ { value: 'custom', label: 'Custom Budget', description: 'We’ll create a quote after understanding your portfolio needs.' } ],
+            'Other': [ { value: 'custom', label: 'Custom Budget', description: 'Let’s talk about your unique idea — budget will be crafted accordingly.' } ]
+        };
+
+        // === تحديث خيارات الميزانية ===
+        function updateBudgetOptions(projectType) {
+            const container = document.getElementById('budgetOptions');
+            const descDiv = document.getElementById('budgetDescription');
+            container.innerHTML = '';
+            descDiv.innerHTML = '';
+            descDiv.classList.remove('show');
+
+            const options = budgetOptions[projectType] || [{ value: 'custom', label: 'Custom Budget', description: 'Tell us more and we’ll provide a quote.' }];
+
+            options.forEach((opt, idx) => {
+                const item = document.createElement('div');
+                item.className = 'radio-item';
+                const id = `budget_${idx}`;
+                item.innerHTML = `
+                    <input type="radio" id="${id}" name="budget" value="${opt.value}" class="radio-input" ${idx === 0 ? 'required' : ''}>
+                    <label for="${id}" class="radio-label"><span class="radio-custom"></span> ${opt.label}</label>
+                `;
+                item.querySelector('input').addEventListener('change', () => {
+                    descDiv.textContent = opt.description;
+                    descDiv.classList.add('show');
+                });
+                container.appendChild(item);
+            });
+        }
+
+        // === إعداد تحذير الجدول الزمني ===
+        function setupTimelineWarning() {
+            const urgent = document.getElementById('urgent');
+            const warn = document.getElementById('urgentWarning');
+            document.querySelectorAll('input[name="timeline"]').forEach(r => {
+                r.addEventListener('change', () => {
+                    if (urgent.checked) warn.classList.add('show');
+                    else warn.classList.remove('show');
+                });
+            });
+        }
+
+        // === نجوم التقييم ===
+        function initStars() {
+            document.querySelectorAll('.star-rating').forEach(cont => {
+                const stars = cont.querySelectorAll('.star');
+                const type = cont.dataset.rating;
+                const hidden = document.getElementById(type + 'Rating');
+                stars.forEach((star, idx) => {
+                    star.addEventListener('click', () => {
+                        hidden.value = idx + 1;
+                        stars.forEach((s, i) => s.classList.toggle('active', i <= idx));
+                    });
+                    star.addEventListener('mouseenter', () => {
+                        stars.forEach((s, i) => s.classList.toggle('active', i <= idx));
+                    });
+                    cont.addEventListener('mouseleave', () => {
+                        const val = hidden.value;
+                        stars.forEach((s, i) => s.classList.toggle('active', i < val));
+                    });
+                });
+            });
+        }
+
+// === إرسال النموذج إلى FormSubmit باستخدام iframe ===
+function submitToBasin(data) {
+    return new Promise((resolve, reject) => {
+        // إنشاء iframe مخفي
+        const iframe = document.createElement('iframe');
+        iframe.name = 'hidden_iframe';
+        iframe.style.display = 'none';
+        document.body.appendChild(iframe);
+        
+        // إنشاء نموذج مخفي
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = 'https://formsubmit.co/mina.samuel.zaki@gmail.com';
+        form.target = 'hidden_iframe';
+        
+        // إضافة البيانات
+        Object.keys(data).forEach(key => {
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = key;
+            input.value = data[key];
+            form.appendChild(input);
+        });
+        
+        // إضافة إعدادات FormSubmit
+        const settings = [
+            { name: '_template', value: 'box' },
+            { name: '_autoresponse', value: 'Thank you for your application! We\'ll be in touch within 24 hours.' },
+            { name: '_subject', value: 'New Project Application' }
+        ];
+        
+        settings.forEach(setting => {
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = setting.name;
+            input.value = setting.value;
+            form.appendChild(input);
+        });
+        
+        // إرسال النموذج
+        document.body.appendChild(form);
+        form.submit();
+        
+        // تنظيف
+        setTimeout(() => {
+            document.body.removeChild(form);
+            document.body.removeChild(iframe);
+            resolve({ success: true });
+        }, 1000);
+    });
+}
+
+        // === LOADER (مطابق لـ index) ===
+        (function() {
+            const fill = document.getElementById('lf'), pct = document.getElementById('lp');
+            let p = 0;
+            const iv = setInterval(() => {
+                p += Math.random() * 18 + 4;
+                if (p >= 100) { p = 100; clearInterval(iv); }
+                fill.style.width = p + '%';
+                pct.textContent = Math.floor(p) + '%';
+                if (p === 100) {
+                    setTimeout(() => {
+                        gsap.to('.ld-line span', {
+                            y: '-110%', duration: 0.8, stagger: 0.09, ease: 'power4.in',
+                            onComplete() {
+                                gsap.to('#loader', {
+                                    scaleY: 0, transformOrigin: 'top center', duration: 0.85, ease: 'power4.inOut',
+                                    onComplete: () => {
+                                        document.getElementById('loader').style.display = 'none';
+                                        initPage();
+                                    }
+                                });
+                            }
+                        });
+                    }, 350);
+                }
+            }, 72);
+        })();
+
+        // === LENIS (تمرير سلس) ===
+        let lenis;
+        function initLenis() {
+            lenis = new Lenis({ duration: 1.3, easing: t => Math.min(1, 1.001 - Math.pow(2, -10 * t)) });
+            lenis.on('scroll', ScrollTrigger.update);
+            gsap.ticker.add(t => lenis.raf(t * 1000));
+            gsap.ticker.lagSmoothing(0);
+        }
+
+        // === CURSOR SYSTEM ===
+        function initCursor() {
+            if ('ontouchstart' in window) return;
+            const cursor = document.getElementById('cursor');
+            const curLabel = document.getElementById('curLabel');
+
+            document.addEventListener('mousemove', e => gsap.set(cursor, { x: e.clientX, y: e.clientY }));
+
+            // مناطق المؤشر
+            document.querySelectorAll('[data-cursor]').forEach(el => {
+                el.addEventListener('mouseenter', () => {
+                    const type = el.dataset.cursor;
+                    document.body.className = ''; // reset
+                    if (type === 'form') document.body.classList.add('cursor-form');
+                    else if (type === 'radio') document.body.classList.add('cursor-radio');
+                    else if (type === 'rate') document.body.classList.add('cursor-rate');
+                    else if (type === 'send') document.body.classList.add('cursor-send');
+                    else document.body.classList.add('cursor-click');
+                });
+                el.addEventListener('mouseleave', () => document.body.className = '');
+            });
+
+            // روابط وأزرار
+            document.querySelectorAll('a, button, .radio-label, .star').forEach(el => {
+                el.addEventListener('mouseenter', () => document.body.classList.add('ch-link'));
+                el.addEventListener('mouseleave', () => document.body.classList.remove('ch-link'));
+            });
+        }
+
+        // === TILT للعنوان ===
+        function initTilt() {
+            const wrap = document.getElementById('titleTilt');
+            const inner = wrap.querySelector('.tilt-inner');
+            let bounds, animId;
+            let targetRX = 0, targetRY = 0, currentRX = 0, currentRY = 0;
+            const lerp = (a, b, t) => a + (b - a) * t;
+
+            function tick() {
+                currentRX = lerp(currentRX, targetRX, 0.1);
+                currentRY = lerp(currentRY, targetRY, 0.1);
+                inner.style.transform = `perspective(700px) rotateX(${currentRX}deg) rotateY(${currentRY}deg) translateZ(18px)`;
+                animId = requestAnimationFrame(tick);
+            }
+
+            wrap.addEventListener('mouseenter', () => {
+                bounds = wrap.getBoundingClientRect();
+                animId = requestAnimationFrame(tick);
+            });
+            wrap.addEventListener('mousemove', e => {
+                if (!bounds) return;
+                const x = (e.clientX - bounds.left) / bounds.width;
+                const y = (e.clientY - bounds.top) / bounds.height;
+                targetRY = (x - 0.5) * 14;
+                targetRX = (y - 0.5) * -10;
+            });
+            wrap.addEventListener('mouseleave', () => {
+                targetRX = 0; targetRY = 0;
+                setTimeout(() => { cancelAnimationFrame(animId); inner.style.transform = ''; }, 600);
+            });
+        }
+
+        // === الأنيميشن الرئيسية ===
+        function initAnimations() {
+            // عنوان متحرك
+            gsap.to('.apply-title .word', {
+                y: '0%', duration: 1.4, stagger: 0.12, ease: 'power4.out',
+                delay: 0.3
+            });
+            gsap.to('#titleTag', { opacity: 1, duration: 1, delay: 1.3 });
+
+            // ظهور البطاقة مع fade up
+            gsap.from('.form-card', {
+                y: 80, opacity: 0, duration: 1.2, ease: 'power3.out',
+                scrollTrigger: { trigger: '.form-card', start: 'top 85%' }
+            });
+
+            // بارالاكس للخلفيات
+            gsap.to('.blob1', {
+                y: -150, x: -100, scrollTrigger: { scrub: 1.5 }
+            });
+            gsap.to('.blob2', {
+                y: 150, x: 100, scrollTrigger: { scrub: 1.5 }
+            });
+        }
+
+        // === بدء كل شيء بعد اللودر ===
+        function initPage() {
+            initLenis();
+            initCursor();
+            initTilt();
+            initStars();
+            setupTimelineWarning();
+
+            // ربط تغيير نوع المشروع بتحديث الميزانية
+            document.querySelectorAll('input[name="projectType"]').forEach(r => {
+                r.addEventListener('change', e => updateBudgetOptions(e.target.value));
+            });
+            updateBudgetOptions('Personal Website'); // افتراضي
+
+            // === إرسال النموذج ===
+            document.getElementById('applicationForm').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const form = e.target;
+                const formData = new FormData(form);
+                const data = Object.fromEntries(formData);
+
+                // تحقق بسيط
+                const required = ['fullName', 'email', 'phone', 'projectType', 'projectDescription', 'budget', 'timeline'];
+                if (required.some(f => !data[f])) {
+                    alert('Please fill all required fields.');
+                    return;
+                }
+
+                const basinData = {
+                    'Full Name': data.fullName,
+                    'Company': data.companyName || '—',
+                    'Email': data.email,
+                    'Phone': data.phone,
+                    'Project Type': data.projectType,
+                    'Description': data.projectDescription,
+                    'Budget': data.budget,
+                    'Timeline': data.timeline,
+                    'Design': data.designRating || '0',
+                    'Functionality': data.functionalityRating || '0',
+                    'SEO': data.seoRating || '0',
+                    'Mobile': data.mobileRating || '0',
+                    'Comments': data.comments || ''
+                };
+
+                const btn = document.getElementById('submitBtn');
+                btn.textContent = 'Submitting...';
+                btn.disabled = true;
+
+                const result = await submitToBasin(basinData);
+                if (result.success) {
+                    document.getElementById('successMessage').classList.add('show');
+                    btn.textContent = 'Submitted ✓';
+                    setTimeout(() => window.location.href = THANK_YOU_PAGE, 2000);
+                } else {
+                    alert('Submission failed. Please try again.');
+                    btn.textContent = 'Submit Application';
+                    btn.disabled = false;
+                }
+            });
+
+            initAnimations();
+        }
+
+        // حل سريع جداً - إظهار العنوان فوراً
+window.addEventListener('load', function() {
+    // إظهار العنوان الرئيسي
+    document.querySelectorAll('.apply-title .word').forEach(word => {
+        word.style.transform = 'translateY(0%)';
+    });
+    
+    // إظهار titleTag
+    const titleTag = document.getElementById('titleTag');
+    if (titleTag) {
+        titleTag.style.opacity = '1';
+        titleTag.style.transition = 'opacity 1s';
+    }
+});
+
+        // شريط التقدم
+        window.addEventListener('scroll', () => {
+            const d = document.documentElement;
+            const p = (d.scrollTop || document.body.scrollTop) / (d.scrollHeight - d.clientHeight) * 100;
+            document.getElementById('pbar').style.width = p + '%';
+        });
+    </script>
+</body>
+</html>

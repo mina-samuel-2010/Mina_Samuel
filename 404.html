@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<link rel="icon" href="SnapBG.ai_1771936136826.png">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>404 — Lost in the Void · Mina Samuel</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Cormorant:ital,wght@0,300;0,400;1,300;1,400&family=DM+Mono:ital,wght@0,300;0,400;1,300&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<style>
+/* ══════════════════════════════════════════════════
+   TOKENS
+══════════════════════════════════════════════════ */
+:root{
+  --bg:#060608;
+  --surface:#0c0c10;
+  --surface2:#111116;
+  --accent:#c8ff00;
+  --accent-dim:rgba(200,255,0,.10);
+  --text:#f0ede6;
+  --muted:#4a4a55;
+  --muted2:#2a2a32;
+  --border:#18181f;
+  --green:#00ff88;
+  --red:#ff3366;
+  --font-hero:'Bebas Neue',sans-serif;
+  --font-body:'Outfit',sans-serif;
+  --font-serif:'Cormorant',serif;
+  --font-mono:'DM Mono',monospace;
+  --ease-out:cubic-bezier(.25,.46,.45,.94);
+  --ease-bounce:cubic-bezier(.175,.885,.32,1.275);
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html,body{width:100%;height:100%;overflow:hidden}
+body{
+  background:var(--bg);color:var(--text);
+  font-family:var(--font-body);
+  -webkit-font-smoothing:antialiased;
+  cursor:none;position:relative;
+}
+
+/* ── NOISE GRAIN ── */
+body::after{
+  content:'';position:fixed;inset:0;pointer-events:none;z-index:9100;opacity:.048;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size:160px;
+}
+/* ── SCANLINES ── */
+body::before{
+  content:'';position:fixed;inset:0;pointer-events:none;z-index:9090;
+  background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.025) 2px,rgba(0,0,0,.025) 4px);
+}
+
+/* ══════════════════════════════════════════════════
+   CURSOR
+══════════════════════════════════════════════════ */
+#cursor{position:fixed;top:0;left:0;pointer-events:none;z-index:9999;transform:translate(-50%,-50%)}
+.c-blob{
+  position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+  width:40px;height:40px;border:1.5px solid rgba(200,255,0,.55);border-radius:50%;
+  transition:width .4s var(--ease-out),height .4s var(--ease-out),background .4s,border-color .4s;
+}
+.c-dot{
+  position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+  width:6px;height:6px;background:var(--accent);border-radius:50%;
+  transition:opacity .3s;
+}
+body.ch-link .c-blob{width:64px;height:64px;background:var(--accent);border-color:var(--accent);}
+body.ch-link .c-dot{opacity:0}
+
+/* ══════════════════════════════════════════════════
+   CANVAS
+══════════════════════════════════════════════════ */
+#void-canvas{position:fixed;inset:0;z-index:0;pointer-events:none;}
+
+/* ══════════════════════════════════════════════════
+   GRID OVERLAY
+══════════════════════════════════════════════════ */
+.grid-bg{
+  position:fixed;inset:0;z-index:1;pointer-events:none;
+  background-image:
+    linear-gradient(rgba(200,255,0,.016) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(200,255,0,.016) 1px,transparent 1px);
+  background-size:80px 80px;
+}
+
+/* ══════════════════════════════════════════════════
+   CORNER BRACKETS
+══════════════════════════════════════════════════ */
+.corner{position:fixed;z-index:25;pointer-events:none;width:28px;height:28px;opacity:0;}
+.corner::before,.corner::after{content:'';position:absolute;background:rgba(200,255,0,.35);}
+.corner::before{width:100%;height:1px;}
+.corner::after{width:1px;height:100%;}
+.corner.tl{top:68px;left:28px;}
+.corner.tl::before{top:0;left:0}
+.corner.tl::after{top:0;left:0}
+.corner.tr{top:68px;right:28px;}
+.corner.tr::before{top:0;right:0}
+.corner.tr::after{top:0;right:0}
+.corner.bl{bottom:36px;left:28px;}
+.corner.bl::before{bottom:0;left:0}
+.corner.bl::after{bottom:0;left:0}
+.corner.br{bottom:36px;right:28px;}
+.corner.br::before{bottom:0;right:0}
+.corner.br::after{bottom:0;right:0}
+
+/* ══════════════════════════════════════════════════
+   NAV
+══════════════════════════════════════════════════ */
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:500;
+  padding:26px 60px;display:flex;justify-content:space-between;align-items:center;
+  background:rgba(6,6,8,.8);backdrop-filter:blur(24px);
+  border-bottom:1px solid var(--border);opacity:0;
+}
+.n-logo{font-family:var(--font-mono);font-size:11px;color:var(--muted);text-decoration:none;letter-spacing:.1em}
+.n-logo b{color:var(--accent);font-weight:400}
+.n-status{display:flex;align-items:center;gap:8px;font-family:var(--font-mono);font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--red);}
+.n-dot{width:5px;height:5px;border-radius:50%;background:var(--red);animation:blink-r 1.2s infinite}
+@keyframes blink-r{0%,100%{opacity:1}50%{opacity:.15}}
+
+/* ══════════════════════════════════════════════════
+   GIANT 404 — parallax bg
+══════════════════════════════════════════════════ */
+.num-wrap{
+  position:fixed;inset:0;z-index:5;
+  display:flex;align-items:center;justify-content:center;
+  pointer-events:none;will-change:transform;
+}
+.giant-404{
+  font-family:var(--font-hero);
+  font-size:clamp(200px,30vw,480px);
+  line-height:1;letter-spacing:-.02em;
+  color:transparent;
+  -webkit-text-stroke:1px rgba(200,255,0,.055);
+  user-select:none;position:relative;
+}
+/* glitch pseudo layers */
+.giant-404::before,.giant-404::after{
+  content:'404';position:absolute;top:0;left:0;
+  font-family:inherit;font-size:inherit;letter-spacing:inherit;
+  color:transparent;pointer-events:none;
+}
+.giant-404::before{
+  -webkit-text-stroke:1px rgba(255,51,102,.45);
+  animation:ga 5s infinite;
+  clip-path:polygon(0 12%,100% 12%,100% 38%,0 38%);
+}
+.giant-404::after{
+  -webkit-text-stroke:1px rgba(0,255,136,.35);
+  animation:gb 5s infinite;
+  clip-path:polygon(0 58%,100% 58%,100% 76%,0 76%);
+}
+@keyframes ga{
+  0%,80%,100%{transform:translate(0);opacity:0}
+  82%{transform:translate(-5px,2px);opacity:1}
+  84%{transform:translate(4px,-1px);opacity:1}
+  86%{transform:translate(-2px,1px);opacity:1}
+  88%,90%{opacity:0;transform:translate(0)}
+  92%{transform:translate(6px,-2px);opacity:1}
+  95%{opacity:0}
+}
+@keyframes gb{
+  0%,77%,100%{transform:translate(0);opacity:0}
+  79%{transform:translate(5px,-2px);opacity:1}
+  81%{transform:translate(-4px,1px);opacity:1}
+  83%{opacity:0}
+  87%{transform:translate(-6px,2px);opacity:1}
+  90%{opacity:0}
+}
+
+/* ══════════════════════════════════════════════════
+   GLITCH FLASH
+══════════════════════════════════════════════════ */
+#gflash{position:fixed;inset:0;z-index:9000;pointer-events:none;background:var(--accent);opacity:0;mix-blend-mode:overlay;}
+
+/* ══════════════════════════════════════════════════
+   CONTENT — bottom overlay
+══════════════════════════════════════════════════ */
+.content{
+  position:fixed;bottom:0;left:0;right:0;z-index:20;
+  padding:0 60px 56px;
+  display:grid;grid-template-columns:1fr auto;
+  align-items:flex-end;gap:40px;
+  pointer-events:none;
+}
+.cl{pointer-events:auto;}
+.cr{display:flex;flex-direction:column;align-items:flex-end;gap:18px;pointer-events:auto;}
+
+/* err code */
+.err-tag{
+  font-family:var(--font-mono);font-size:9px;letter-spacing:.2em;text-transform:uppercase;
+  color:var(--red);display:flex;align-items:center;gap:8px;margin-bottom:16px;opacity:0;
+}
+.err-tag::before{content:'';width:14px;height:1px;background:var(--red);}
+
+/* headline */
+.hw{overflow:hidden;}
+.hl{
+  font-family:var(--font-hero);font-size:clamp(52px,7.5vw,120px);
+  line-height:.88;display:block;transform:translateY(110%);
+}
+.hl em{font-family:var(--font-serif);font-style:italic;font-weight:300;color:var(--accent);}
+
+/* sub italic */
+.hl-sub{
+  font-family:var(--font-serif);font-style:italic;font-weight:300;
+  font-size:clamp(16px,2vw,26px);color:var(--muted);
+  margin-top:10px;opacity:0;
+}
+
+/* desc */
+.err-desc{
+  margin-top:22px;font-size:13px;color:var(--muted);line-height:1.85;
+  max-width:400px;opacity:0;
+}
+.err-desc b{color:var(--text);font-weight:500;}
+
+/* buttons */
+.btns{display:flex;gap:10px;margin-top:30px;opacity:0;flex-wrap:wrap;}
+.btn-p{
+  font-family:var(--font-mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;
+  text-decoration:none;color:var(--bg);background:var(--accent);padding:11px 26px;
+  position:relative;overflow:hidden;transition:opacity .3s;
+}
+.btn-p::before{content:'';position:absolute;inset:0;background:rgba(0,0,0,.12);transform:translateX(-101%);transition:transform .4s var(--ease-out)}
+.btn-p:hover::before{transform:translateX(0)}
+.btn-o{
+  font-family:var(--font-mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;
+  text-decoration:none;color:var(--text);border:1px solid var(--border);padding:11px 26px;
+  transition:border-color .3s,color .3s;position:relative;overflow:hidden;
+}
+.btn-o::before{content:'';position:absolute;inset:0;background:var(--accent-dim);transform:scaleX(0);transform-origin:left;transition:transform .4s var(--ease-out)}
+.btn-o:hover{border-color:rgba(200,255,0,.3);color:var(--accent);}
+.btn-o:hover::before{transform:scaleX(1)}
+
+/* ══════════════════════════════════════════════════
+   TERMINAL
+══════════════════════════════════════════════════ */
+.terminal{
+  width:320px;background:var(--surface);border:1px solid var(--border);
+  position:relative;overflow:hidden;opacity:0;transform:translateX(24px);
+}
+.terminal::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--red),var(--accent));}
+.t-hdr{
+  padding:12px 16px;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:7px;
+}
+.td{width:8px;height:8px;border-radius:50%;}
+.td.r{background:#ff5f57}.td.y{background:#febc2e}.td.g{background:#28c840}
+.t-ttl{font-family:var(--font-mono);font-size:9px;color:var(--muted);letter-spacing:.08em;margin-left:6px;}
+.t-body{padding:18px 16px;font-family:var(--font-mono);font-size:11px;line-height:1.9;color:var(--muted);min-height:188px;}
+.tl{display:block;opacity:0;transform:translateX(-6px);}
+.t-prompt{color:var(--accent)}.t-cmd{color:var(--text)}.t-err{color:var(--red)}.t-ok{color:var(--green)}
+.t-cur{display:inline-block;width:7px;height:12px;background:var(--accent);animation:blink-c .9s step-end infinite;vertical-align:middle;}
+@keyframes blink-c{0%,100%{opacity:1}50%{opacity:0}}
+
+/* ── LIVE COORDS ── */
+.coords{
+  font-family:var(--font-mono);font-size:9px;color:var(--muted2);
+  letter-spacing:.09em;text-align:right;opacity:0;
+}
+.coords span{color:var(--muted);display:block;line-height:1.7;}
+
+/* ══════════════════════════════════════════════════
+   BOTTOM MARQUEE
+══════════════════════════════════════════════════ */
+.mq-strip{
+  position:fixed;bottom:0;left:0;right:0;z-index:15;
+  border-top:1px solid var(--border);background:var(--surface);
+  overflow:hidden;padding:8px 0;opacity:0;
+}
+.mq-track{display:flex;white-space:nowrap;animation:marq 18s linear infinite;}
+.mq-track.rev{animation-direction:reverse;animation-duration:24s;}
+.mi{font-family:var(--font-mono);font-size:9px;letter-spacing:.13em;text-transform:uppercase;color:var(--muted2);padding:0 26px;flex-shrink:0;}
+.mi span{color:var(--accent);}
+@keyframes marq{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+
+/* ══════════════════════════════════════════════════
+   RESPONSIVE
+══════════════════════════════════════════════════ */
+@media(max-width:900px){
+  nav{padding:18px 24px}
+  .content{grid-template-columns:1fr;padding:0 24px 88px;gap:24px;}
+  .cr{align-items:flex-start;}
+  .terminal{width:100%;max-width:100%;}
+  .giant-404{font-size:clamp(140px,36vw,240px)}
+}
+@media(max-width:560px){
+  .terminal{display:none}
+  .hl{font-size:clamp(46px,14vw,80px)}
+  .btns{flex-direction:column;width:fit-content}
+  .content{padding:0 20px 96px}
+}
+</style>
+</head>
+<body>
+
+<!-- GLITCH FLASH -->
+<div id="gflash"></div>
+
+<!-- CURSOR -->
+<div id="cursor"><div class="c-blob"></div><div class="c-dot"></div></div>
+
+<!-- VOID CANVAS -->
+<canvas id="void-canvas"></canvas>
+<div class="grid-bg"></div>
+
+<!-- CORNER BRACKETS -->
+<div class="corner tl"></div>
+<div class="corner tr"></div>
+<div class="corner bl"></div>
+<div class="corner br"></div>
+
+<!-- NAV -->
+<nav id="mainNav">
+  <a href="index.html" class="n-logo"><b>MS</b> / Mina Samuel</a>
+  <div class="n-status"><div class="n-dot"></div>ERR 404 — Page Not Found</div>
+</nav>
+
+<!-- GIANT 404 -->
+<div class="num-wrap" id="numWrap">
+  <div class="giant-404" id="g404">404</div>
+</div>
+
+<!-- BOTTOM MARQUEE -->
+<div class="mq-strip" id="mqStrip">
+  <div class="mq-track">
+    <span class="mi"><span>✦</span> Error 404</span>
+    <span class="mi">Page Not Found</span>
+    <span class="mi"><span>✦</span> Lost in the Void</span>
+    <span class="mi">Something Broke</span>
+    <span class="mi"><span>✦</span> Mina Samuel</span>
+    <span class="mi">Frontend Developer</span>
+    <span class="mi"><span>✦</span> Menoufia, EG</span>
+    <span class="mi">Digital Craftsman</span>
+    <span class="mi"><span>✦</span> Error 404</span>
+    <span class="mi">Page Not Found</span>
+    <span class="mi"><span>✦</span> Lost in the Void</span>
+    <span class="mi">Something Broke</span>
+    <span class="mi"><span>✦</span> Mina Samuel</span>
+    <span class="mi">Frontend Developer</span>
+    <span class="mi"><span>✦</span> Menoufia, EG</span>
+    <span class="mi">Digital Craftsman</span>
+  </div>
+</div>
+
+<!-- MAIN CONTENT -->
+<div class="content">
+
+  <!-- LEFT -->
+  <div class="cl">
+    <div class="err-tag" id="errTag">ERR_PAGE_NOT_FOUND · HTTP 404</div>
+
+    <div class="hw"><span class="hl" id="h1">Lost In The</span></div>
+    <div class="hw"><span class="hl" id="h2"><em>Void.</em></span></div>
+
+    <p class="hl-sub" id="hlSub">This page vanished into the digital abyss.</p>
+
+    <p class="err-desc" id="errDesc">
+      The page you're looking for no longer exists, was moved,
+      or perhaps <b>never existed at all.</b>
+      <br><br>
+      Let's get you back somewhere real.
+    </p>
+
+    <div class="btns" id="btns">
+      <a href="index.html" class="btn-p">← Back to Portfolio</a>
+      <a href="index.html#contact" class="btn-o">Contact Me</a>
+    </div>
+  </div>
+
+  <!-- RIGHT: TERMINAL + COORDS -->
+  <div class="cr">
+
+    <div class="terminal" id="termBox">
+      <div class="t-hdr">
+        <div class="td r"></div><div class="td y"></div><div class="td g"></div>
+        <span class="t-ttl">system_diagnostic.sh</span>
+      </div>
+      <div class="t-body" id="termBody"></div>
+    </div>
+
+    <div class="coords" id="coords">
+      <span>LAT 30.597° N · LON 31.001° E</span>
+      <span>STATUS: <span style="color:var(--red)">DISCONNECTED</span></span>
+      <span id="liveTime" style="color:var(--accent)">--:--:-- UTC</span>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     SCRIPTS
+══════════════════════════════════════════════ -->
+<script>
+/* ─── CANVAS VOID ─── */
+(function(){
+  const cvs = document.getElementById('void-canvas');
+  const ctx  = cvs.getContext('2d');
+  let W, H, stars=[], shards=[], tick=0, mouseX=0, mouseY=0;
+
+  function resize(){
+    W = cvs.width  = window.innerWidth;
+    H = cvs.height = window.innerHeight;
+    stars=[]; shards=[];
+    const n = Math.floor(W*H/3800);
+    for(let i=0;i<n;i++) stars.push({
+      x:Math.random()*W, y:Math.random()*H,
+      r:Math.random()*1.3+.2,
+      a:Math.random()*.45+.05,
+      spd:Math.random()*.12+.02,
+      phase:Math.random()*Math.PI*2,
+      freq:Math.random()*.018+.004
+    });
+    for(let i=0;i<20;i++) shards.push({
+      x:Math.random()*W, y:Math.random()*H,
+      vx:(Math.random()-.5)*.35, vy:(Math.random()-.5)*.35,
+      sz:Math.random()*24+6, rot:Math.random()*Math.PI*2,
+      rotV:(Math.random()-.5)*.007,
+      a:Math.random()*.055+.01,
+      sides:Math.floor(Math.random()*3)+3
+    });
+  }
+
+  function poly(x,y,r,sides,rot){
+    ctx.beginPath();
+    for(let i=0;i<sides;i++){
+      const a=rot+(i/sides)*Math.PI*2;
+      i===0?ctx.moveTo(x+Math.cos(a)*r,y+Math.sin(a)*r):ctx.lineTo(x+Math.cos(a)*r,y+Math.sin(a)*r);
+    }
+    ctx.closePath();
+  }
+
+  function frame(){
+    ctx.clearRect(0,0,W,H); tick++;
+
+    // Stars
+    stars.forEach(s=>{
+      s.y-=s.spd; if(s.y<0)s.y=H;
+      s.phase+=s.freq;
+      const tw=Math.sin(s.phase)*.3+.7;
+      ctx.beginPath();ctx.arc(s.x,s.y,s.r,0,Math.PI*2);
+      ctx.fillStyle=`rgba(200,255,0,${s.a*tw})`;ctx.fill();
+    });
+
+    // Shards
+    shards.forEach(s=>{
+      s.x+=s.vx;s.y+=s.vy;s.rot+=s.rotV;
+      if(s.x<-50)s.x=W+50; if(s.x>W+50)s.x=-50;
+      if(s.y<-50)s.y=H+50; if(s.y>H+50)s.y=-50;
+      ctx.save();poly(s.x,s.y,s.sz,s.sides,s.rot);
+      ctx.strokeStyle=`rgba(200,255,0,${s.a})`;ctx.lineWidth=.7;ctx.stroke();ctx.restore();
+    });
+
+    // Mouse glow
+    const g1=ctx.createRadialGradient(mouseX,mouseY,0,mouseX,mouseY,280);
+    g1.addColorStop(0,'rgba(200,255,0,.05)');g1.addColorStop(1,'transparent');
+    ctx.fillStyle=g1;ctx.fillRect(0,0,W,H);
+
+    // Ambient pulse
+    const cx=W/2+Math.sin(tick*.004)*50,cy=H/2+Math.cos(tick*.003)*35;
+    const g2=ctx.createRadialGradient(cx,cy,0,cx,cy,450);
+    g2.addColorStop(0,'rgba(200,255,0,.025)');g2.addColorStop(1,'transparent');
+    ctx.fillStyle=g2;ctx.fillRect(0,0,W,H);
+
+    requestAnimationFrame(frame);
+  }
+
+  window.addEventListener('resize',resize);
+  window.addEventListener('mousemove',e=>{mouseX=e.clientX;mouseY=e.clientY;});
+  resize();frame();
+})();
+
+/* ─── CURSOR ─── */
+(function(){
+  const el=document.getElementById('cursor');
+  let mx=0,my=0,cx=0,cy=0;
+  document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY});
+  document.querySelectorAll('a,button').forEach(el=>{
+    el.addEventListener('mouseenter',()=>document.body.classList.add('ch-link'));
+    el.addEventListener('mouseleave',()=>document.body.classList.remove('ch-link'));
+  });
+  (function t(){cx+=(mx-cx)*.12;cy+=(my-cy)*.12;
+    el.style.transform=`translate(${cx}px,${cy}px) translate(-50%,-50%)`;
+    requestAnimationFrame(t);})();
+})();
+
+/* ─── PARALLAX 404 ─── */
+(function(){
+  const wrap=document.getElementById('numWrap');
+  let tx=0,ty=0,cx=0,cy=0;
+  document.addEventListener('mousemove',e=>{
+    tx=(e.clientX/window.innerWidth-.5)*-45;
+    ty=(e.clientY/window.innerHeight-.5)*-28;
+  });
+  (function t(){cx+=(tx-cx)*.055;cy+=(ty-cy)*.055;
+    wrap.style.transform=`translate(${cx}px,${cy}px)`;
+    requestAnimationFrame(t);})();
+})();
+
+/* ─── TERMINAL ─── */
+const termLines=[
+  {html:'<span class="t-prompt">~$</span> <span class="t-cmd">ping mina-samuel.dev</span>',d:300},
+  {html:'<span class="t-err">Request timeout for icmp_seq 0</span>',d:1000},
+  {html:'<span class="t-err">Request timeout for icmp_seq 1</span>',d:1700},
+  {html:'<span class="t-prompt">~$</span> <span class="t-cmd">locate /this-page.html</span>',d:2500},
+  {html:'<span class="t-err">locate: No such file or directory</span>',d:3200},
+  {html:'<span class="t-prompt">~$</span> <span class="t-cmd">curl -I /this-page</span>',d:4000},
+  {html:'<span class="t-err">HTTP/1.1 404 Not Found</span>',d:4700},
+  {html:'<span class="t-ok">✓ Suggestion: navigate → /index.html</span>',d:5500},
+];
+function initTerminal(){
+  const body=document.getElementById('termBody');
+  termLines.forEach((line,i)=>{
+    setTimeout(()=>{
+      const el=document.createElement('div');el.className='tl';el.innerHTML=line.html;
+      body.appendChild(el);
+      gsap.to(el,{opacity:1,x:0,duration:.35,ease:'power2.out'});
+      const old=body.querySelector('.t-cur');if(old)old.remove();
+      if(i===termLines.length-1){
+        const cur=document.createElement('span');cur.className='t-cur';body.appendChild(cur);
+      }
+    },line.d+1400);
+  });
+}
+
+/* ─── CLOCK ─── */
+function initClock(){
+  const el=document.getElementById('liveTime');
+  setInterval(()=>{
+    const d=new Date();
+    const h=String(d.getUTCHours()).padStart(2,'0');
+    const m=String(d.getUTCMinutes()).padStart(2,'0');
+    const s=String(d.getUTCSeconds()).padStart(2,'0');
+    el.textContent=`${h}:${m}:${s} UTC`;
+  },1000);
+}
+
+/* ─── PERIODIC GLITCH ─── */
+function startGlitch(){
+  const flash=document.getElementById('gflash');
+  const g=document.getElementById('g404');
+  function run(){
+    gsap.to(flash,{opacity:.07,duration:.04,yoyo:true,repeat:4,ease:'none',onComplete(){flash.style.opacity=0;}});
+    gsap.to(g,{skewX:()=>(Math.random()-.5)*14,skewY:()=>(Math.random()-.5)*4,
+      duration:.07,yoyo:true,repeat:6,ease:'none',
+      onComplete(){gsap.set(g,{skewX:0,skewY:0});}
+    });
+    setTimeout(run,3500+Math.random()*4000);
+  }
+  setTimeout(run,2800);
+}
+
+/* ─── ENTRANCE ANIMATION ─── */
+const tl=gsap.timeline({delay:.15});
+tl.to('#mainNav',{opacity:1,duration:.7,ease:'power3.out'});
+tl.to('.corner',{opacity:1,stagger:.07,duration:.4,ease:'power2.out'},'-=.4');
+tl.to('#mqStrip',{opacity:1,duration:.5,ease:'power2.out'},'-=.35');
+tl.from('#numWrap',{opacity:0,scale:1.45,duration:1.5,ease:'power4.out'},'-=.3');
+tl.to('#errTag',{opacity:1,duration:.5,ease:'power3.out'},'-=.9');
+tl.to('#h1',{y:0,duration:1,ease:'power4.out'},'-=.6');
+tl.to('#h2',{y:0,duration:1,ease:'power4.out'},'-=.85');
+tl.to('#hlSub',{opacity:1,duration:.6,ease:'power3.out'},'-=.5');
+tl.to('#errDesc',{opacity:1,duration:.6,ease:'power3.out'},'-=.4');
+tl.to('#btns',{opacity:1,duration:.5,ease:'power3.out'},'-=.3');
+tl.to('#termBox',{opacity:1,x:0,duration:.7,ease:'power3.out'},'-=.5');
+tl.to('#coords',{opacity:1,duration:.5,ease:'power2.out'},'-=.3');
+tl.call(initTerminal);
+tl.call(initClock);
+tl.call(startGlitch);
+
+/* ─── 404 AMBIENT PULSE ─── */
+gsap.to('#g404',{opacity:.7,duration:4,ease:'sine.inOut',yoyo:true,repeat:-1});
+</script>
+</body>
+</html>
